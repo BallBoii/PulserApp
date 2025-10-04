@@ -1,0 +1,17 @@
+SpinCore Technologies, Inc. SpinAPI ver. 20171214
+Logfile created: Sun Oct  5 00:32:30 2025
+
+Markers: (I) info, (W) warning, (E) error.
+
+================================================================================================
+    TIME     FUNCTION                     MESSAGE                      
+================================================================================================
+(I) 00:32:30 os_count_boards:177         Registering WinDriver...
+(I) 00:32:30 RegisterWinDriver:135       Using WinDriver version 1031.
+(I) 00:32:30 RegisterWinDriver:151       lic.dwLicense:  0x2051dfc
+(I) 00:32:30 RegisterWinDriver:152       lic.dwLicense2: 0x88
+(I) 00:32:30 RegisterWinDriver:153       license setup succeeded
+(I) 00:32:30 os_usb_count_devices:71     os_usb_count_devices: Enumerating USB Devices...
+(I) 00:32:30 os_usb_count_devices:86     os_usb_count_devices: Enumeration Completed. Found 0 Devices.
+(I) 00:32:30 pb_count_boards:144         pb_count_boards(): Detected 0 boards in your system.
+(E) 00:32:30 pb_select_board:164         pb_select_board(..):  Board number out of range (num_boards=0)

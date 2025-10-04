@@ -1,0 +1,17 @@
+# Development-only dependencies
+-r requirements.txt
+
+# Testing
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+
+# Code quality
+pre-commit>=3.0.0
+isort>=5.10.0
+
+# Documentation
+sphinx>=5.0.0
+sphinx-rtd-theme>=1.2.0
+
+# Type checking
+types-requests>=2.28.0
