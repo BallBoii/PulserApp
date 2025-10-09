@@ -2,16 +2,9 @@ import { invoke } from '@tauri-apps/api/core';
 import { PulseInstruction } from '@/types/pulser/pulse';
 
 export interface PulseBlasterConfig {
-  board_num: number;
-  clock_freq_mhz: number;
-}
-
-export interface PulseBlasterStatus {
-  status: number;
-  is_running: boolean;
-  is_stopped: boolean;
-  is_reset: boolean;
-  is_waiting: boolean;
+  board: number;
+  core_clock_MHz?: number;
+  debug: boolean;
 }
 
 export class PulseBlasterService {
@@ -45,10 +38,22 @@ export class PulseBlasterService {
         flags: inst.flags,
         opcode: inst.opcode,
         data: inst.data,
-        duration: inst.duration
+        duration: inst.duration,
+        units: inst.displayTimeScale || 'ns', // Use displayTimeScale or default to 'ns'
+        // Optional DDS fields
+        freq0: null,
+        phase0: null,
+        amp0: null,
+        dds_en0: null,
+        phase_reset0: null,
+        freq1: null,
+        phase1: null,
+        amp1: null,
+        dds_en1: null,
+        phase_reset1: null
       }));
 
-      const result = await invoke<string>('program_pulse_sequence', { 
+      const result = await invoke<string>('program_instructions', { 
         instructions: backendInstructions 
       });
       console.log('Pulse sequence programmed:', result);
@@ -66,7 +71,7 @@ export class PulseBlasterService {
     }
 
     try {
-      const result = await invoke<string>('start_pulse_program');
+      const result = await invoke<string>('start_pulseblaster');
       console.log('Pulse program started:', result);
     } catch (error) {
       throw new Error(`Failed to start pulse program: ${error}`);
@@ -82,7 +87,7 @@ export class PulseBlasterService {
     }
 
     try {
-      const result = await invoke<string>('stop_pulse_program');
+      const result = await invoke<string>('stop_pulseblaster');
       console.log('Pulse program stopped:', result);
     } catch (error) {
       throw new Error(`Failed to stop pulse program: ${error}`);
@@ -108,24 +113,32 @@ export class PulseBlasterService {
   /**
    * Get the current status of the PulseBlaster
    */
-  async getStatus(): Promise<PulseBlasterStatus> {
+  async getStatus(): Promise<string> {
     if (!this.isInitialized) {
       throw new Error('PulseBlaster not initialized');
     }
 
     try {
-      const status = await invoke<number>('get_pulseblaster_status');
-      
-      // Decode status bits (typical PulseBlaster status format)
-      return {
-        status,
-        is_running: (status & 0x01) !== 0,
-        is_stopped: (status & 0x02) !== 0,
-        is_reset: (status & 0x04) !== 0,
-        is_waiting: (status & 0x08) !== 0,
-      };
+      const status = await invoke<string>('get_pulseblaster_status');
+      return status;
     } catch (error) {
       throw new Error(`Failed to get PulseBlaster status: ${error}`);
+    }
+  }
+
+  /**
+   * Wait until the pulse program stops
+   */
+  async waitUntilStopped(timeoutS: number): Promise<string> {
+    if (!this.isInitialized) {
+      throw new Error('PulseBlaster not initialized');
+    }
+
+    try {
+      const result = await invoke<string>('wait_until_stopped', { timeout_s: timeoutS });
+      return result;
+    } catch (error) {
+      throw new Error(`Failed to wait until stopped: ${error}`);
     }
   }
 

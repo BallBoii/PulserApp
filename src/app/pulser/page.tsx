@@ -12,7 +12,7 @@ import { TimelineView } from '@/components/pulser/TimelineView';
 import { SettingsPanel } from '@/components/pulser/SettingsPanel';
 import { ExportDialog } from '@/components/pulser/ExportDialog';
 import { ExamplePrograms } from '@/components/pulser/ExamplePrograms';
-import { PythonHardwareControl } from '@/components/pulser/PythonHardwareControl';
+import { HardwareControl } from '@/components/pulser/HardwareControl';
 import { PulseInstruction, VisualizationSettings, PulseProgram, TIME_SCALE_MULTIPLIERS } from '@/types/pulser/pulse';
 import { Toaster } from '@/components/ui/sonner';
 import { downloadPythonLibrary } from '@/lib/utils/pythonLibraryGenerator';
@@ -147,7 +147,7 @@ export default function App() {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Left Sidebar - Settings */}
           <div className="xl:col-span-1 space-y-6">
-            <PythonHardwareControl instructions={instructions} />
+            <HardwareControl instructions={instructions} />
             <SettingsPanel 
               settings={settings} 
               onSettingsChange={setSettings}

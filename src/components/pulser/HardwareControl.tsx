@@ -18,8 +18,9 @@ import {
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
+import { Checkbox } from '@/components/ui/checkbox';
 import { toast } from 'sonner';
-import { pulseBlasterService, PulseBlasterConfig, PulseBlasterStatus } from '@/lib/pulseblaster/service';
+import { PulseBlasterService, PulseBlasterConfig } from '@/lib/pulseblaster/service';
 import { PulseInstruction } from '@/types/pulser/pulse';
 
 interface HardwareControlProps {
@@ -27,15 +28,19 @@ interface HardwareControlProps {
   onStatusChange?: (connected: boolean) => void;
 }
 
+// Create service instance
+const pulseBlasterService = new PulseBlasterService();
+
 export function HardwareControl({ instructions, onStatusChange }: HardwareControlProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isProgramming, setIsProgramming] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
-  const [status, setStatus] = useState<PulseBlasterStatus | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const [config, setConfig] = useState<PulseBlasterConfig>({
-    board_num: 0,
-    clock_freq_mhz: 500.0
+    board: 0,
+    core_clock_MHz: 500.0,
+    debug: false
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -48,7 +53,8 @@ export function HardwareControl({ instructions, onStatusChange }: HardwareContro
         try {
           const currentStatus = await pulseBlasterService.getStatus();
           setStatus(currentStatus);
-          setIsRunning(currentStatus.is_running);
+          // Since status is now a string, we can't directly determine if running
+          // The backend should provide this information in the status string
         } catch (err) {
           console.warn('Failed to get status:', err);
         }
@@ -186,8 +192,8 @@ export function HardwareControl({ instructions, onStatusChange }: HardwareContro
               <Input
                 id="board-num"
                 type="number"
-                value={config.board_num}
-                onChange={(e) => setConfig({ ...config, board_num: parseInt(e.target.value) || 0 })}
+                value={config.board}
+                onChange={(e) => setConfig({ ...config, board: parseInt(e.target.value) || 0 })}
                 disabled={isConnected}
                 min="0"
               />
@@ -197,13 +203,25 @@ export function HardwareControl({ instructions, onStatusChange }: HardwareContro
               <Input
                 id="clock-freq"
                 type="number"
-                value={config.clock_freq_mhz}
-                onChange={(e) => setConfig({ ...config, clock_freq_mhz: parseFloat(e.target.value) || 500.0 })}
+                value={config.core_clock_MHz || 500.0}
+                onChange={(e) => setConfig({ ...config, core_clock_MHz: parseFloat(e.target.value) || 500.0 })}
                 disabled={isConnected}
                 min="1"
                 step="0.1"
               />
             </div>
+          </div>
+          
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="debug-mode"
+              checked={config.debug}
+              onCheckedChange={(checked) => setConfig({ ...config, debug: !!checked })}
+              disabled={isConnected}
+            />
+            <Label htmlFor="debug-mode" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Debug Mode
+            </Label>
           </div>
 
           <div className="flex gap-2">
@@ -289,34 +307,8 @@ export function HardwareControl({ instructions, onStatusChange }: HardwareContro
             <Separator />
             <div className="space-y-2">
               <Label className="text-sm font-medium">Hardware Status</Label>
-              <div className="grid grid-cols-2 gap-2 text-xs">
-                <div className="flex justify-between">
-                  <span>Running:</span>
-                  <Badge variant={status.is_running ? "default" : "secondary"} className="text-xs">
-                    {status.is_running ? "Yes" : "No"}
-                  </Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Stopped:</span>
-                  <Badge variant={status.is_stopped ? "default" : "secondary"} className="text-xs">
-                    {status.is_stopped ? "Yes" : "No"}
-                  </Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Reset:</span>
-                  <Badge variant={status.is_reset ? "default" : "secondary"} className="text-xs">
-                    {status.is_reset ? "Yes" : "No"}
-                  </Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span>Waiting:</span>
-                  <Badge variant={status.is_waiting ? "default" : "secondary"} className="text-xs">
-                    {status.is_waiting ? "Yes" : "No"}
-                  </Badge>
-                </div>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Raw Status: 0x{status.status.toString(16).toUpperCase().padStart(8, '0')}
+              <div className="text-sm font-mono bg-muted p-2 rounded">
+                {status}
               </div>
             </div>
           </>

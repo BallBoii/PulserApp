@@ -33,8 +33,10 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
-    "resources": [
-      "python"
-    ]
+    "externalBin": [
+      "bin/pulseblaster"
+    ],
+    "shortDescription": "Control and program SpinCore PulseBlaster devices",
+    "longDescription": "A GUI application to control and program SpinCore PulseBlaster devices"
   }
 }

@@ -344,22 +344,6 @@ export class PythonPulseBlasterService {
   }
 
   /**
-   * Program a simple blink pattern (convenience method)
-   */
-  async programSimpleBlink(
-    flagsOn: number | number[] = [0],
-    onTimeUs: number = 500,
-    offTimeUs: number = 500
-  ): Promise<void> {
-    const patterns = [
-      { flags: flagsOn, duration: onTimeUs, units: 'us' },
-      { flags: 0, duration: offTimeUs, units: 'us' }
-    ];
-    
-    await this.programPulseSequence(patterns, 0); // 0 = infinite repeat
-  }
-
-  /**
    * Check if PulseBlaster is initialized
    */
   getInitializationStatus(): boolean {
